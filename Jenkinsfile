@@ -15,8 +15,8 @@ def dropDbTasks = [:]
 def createDbTasks = [:]
 def runHandlers1cTasks = [:]
 def updateDbTasks = [:]
-def deleteDbCatalog = [:]
-def createFileDbTask = [:]
+def deleteDbCatalogTasks = [:]
+def createFileDbTasks = [:]
 
 pipeline {
 
@@ -24,7 +24,6 @@ pipeline {
         string(defaultValue: "${env.jenkinsAgent}", description: 'Нода дженкинса, на которой запускать пайплайн. По умолчанию master', name: 'jenkinsAgent')
         booleanParam(defaultValue: "${env.fileBase}", description: 'Признак того, что подключение будет выполнено к файловой базе', name: 'fileBase')
         string(defaultValue: "${env.fileBasesCatalog}", description: 'Путь к каталогу, где располагаются файловые базы', name: 'fileBasesCatalog')
-        string(defaultValue: "${env.basePath}", description: 'Путь к файловой базе', name: 'basePath')
         string(defaultValue: "${env.server1c}", description: 'Имя сервера 1с, по умолчанию localhost', name: 'server1c')
         string(defaultValue: "${env.server1cPort}", description: 'Порт рабочего сервера 1с. По умолчанию 1540. Не путать с портом агента кластера (1541)', name: 'server1cPort')
         string(defaultValue: "${env.agent1cPort}", description: 'Порт агента кластера 1с. По умолчанию 1541', name: 'agent1cPort')
@@ -90,11 +89,11 @@ pipeline {
                         	testbasePath = fileBasesCatalog + testbase
 
                     		testbaseConnString = projectHelpers.getFileConnString(fileBasesCatalog, testbase)
-                        	deleteDbCatalog["deleteDbCatalog_${testbase}"] = deleteDbCatalog(
+                        	deleteDbCatalogTasks["deleteDbCatalog_${testbase}"] = deleteDbCatalogTask(
                         		testbasePath,
                         		templateDb
                     		)
-                    		createFileDbTask["createFileDbTask_${testbase}"] = createFileDbTask(
+                    		createFileDbTasks["createFileDbTask_${testbase}"] = createFileDbTask(
                     			sourceBasePath,
                     			testbasePath
                 			)
@@ -302,7 +301,7 @@ def updateDbTask(platform1c, infobase, storage1cPath, storageUser, storagePwd, c
     }
 }
 
-def deleteDbCatalog(catalogPath, infobase) {
+def deleteDbCatalogTask(catalogPath, infobase) {
 
 	return {
 		stage("Удаление каталога файловой базы ${infobase}"){
