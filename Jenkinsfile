@@ -85,10 +85,10 @@ pipeline {
                             
 
                         	if (fileBase) {
-                    		sourceBasePath = fileBasesCatalog + templateDb
-                        	testbasePath = fileBasesCatalog + testbase
-
+                    		sourceBasePath = projectHelpers.getFileConnString(fileBasesCatalog, templateDb)
+                        	testbasePath = projectHelpers.getFileConnString(fileBasesCatalog, testbase)
                     		testbaseConnString = projectHelpers.getFileConnString(fileBasesCatalog, testbase)
+
                         	deleteDbCatalogTasks["deleteDbCatalog_${testbase}"] = deleteDbCatalogTask(
                         		testbasePath,
                         		templateDb
