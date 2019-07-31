@@ -323,7 +323,7 @@ def createFileDbTask(infobasePath, createPath) {
 	return {
 		stage("Создание копии файловой базы"){
 			timestamps{
-				if !(Files.exists(createPath)) {
+				if (Files.notExists(createPath)) {
 					Files.createDirectory(createPath)
 				}
 				Files.copy(infobase, createPath)
