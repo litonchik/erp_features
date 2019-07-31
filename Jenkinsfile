@@ -22,7 +22,7 @@ pipeline {
 
     parameters {
         string(defaultValue: "${env.jenkinsAgent}", description: 'Нода дженкинса, на которой запускать пайплайн. По умолчанию master', name: 'jenkinsAgent')
-        boolean(defaultValue: "${env.fileBase}", description: 'Признак того, что подключение будет выполнено к файловой базе', name: 'fileBase')
+        booleanParam(defaultValue: "${env.fileBase}", description: 'Признак того, что подключение будет выполнено к файловой базе', name: 'fileBase')
         string(defaultValue: "${env.fileBasesCatalog}", description: 'Путь к каталогу, где располагаются файловые базы', name: 'fileBasesCatalog')
         string(defaultValue: "${env.basePath}", description: 'Путь к файловой базе', name: 'basePath')
         string(defaultValue: "${env.server1c}", description: 'Имя сервера 1с, по умолчанию localhost', name: 'server1c')
