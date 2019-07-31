@@ -163,6 +163,8 @@ pipeline {
                         parallel createDbTasks
                         parallel updateDbTasks
                         parallel runHandlers1cTasks
+                        parallel deleteDbCatalogTasks
+                       	parallel createFileDbTasks
                     }
                 }
             }
@@ -321,6 +323,9 @@ def createFileDbTask(infobasePath, createPath) {
 	return {
 		stage("Создание копии файловой базы"){
 			timestamps{
+				if !(Files.exists(createPath)) {
+					Files.createDirectory(createPath)
+				}
 				Files.copy(infobase, createPath)
 			}
 		}
