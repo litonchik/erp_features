@@ -61,6 +61,10 @@ def getConnString(server1c, infobase, agent1cPort) {
     return "/S${server1c}:${agent1cPort}\\${infobase}"
 }
 
+def getFileConnString(catalogPath, infobase) {
+    return "/F${catalogPath}\\${infobase}"
+}
+
 // Удаляет базу из кластера через powershell.
 //
 // Параметры:

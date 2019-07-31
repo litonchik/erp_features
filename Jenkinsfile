@@ -2,6 +2,9 @@
 import io.libs.SqlUtils
 import io.libs.ProjectHelpers
 import io.libs.Utils
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 
 def sqlUtils = new SqlUtils()
 def utils = new Utils()
@@ -12,11 +15,16 @@ def dropDbTasks = [:]
 def createDbTasks = [:]
 def runHandlers1cTasks = [:]
 def updateDbTasks = [:]
+def deleteDbCatalog = [:]
+def createFileDbTask = [:]
 
 pipeline {
 
     parameters {
         string(defaultValue: "${env.jenkinsAgent}", description: 'Нода дженкинса, на которой запускать пайплайн. По умолчанию master', name: 'jenkinsAgent')
+        boolean(defaultValue: "${env.fileBase}", description: 'Признак того, что подключение будет выполнено к файловой базе', name: 'fileBase')
+        string(defaultValue: "${env.fileBasesCatalog}", description: 'Путь к каталогу, где располагаются файловые базы', name: 'fileBasesCatalog')
+        string(defaultValue: "${env.basePath}", description: 'Путь к файловой базе', name: 'basePath')
         string(defaultValue: "${env.server1c}", description: 'Имя сервера 1с, по умолчанию localhost', name: 'server1c')
         string(defaultValue: "${env.server1cPort}", description: 'Порт рабочего сервера 1с. По умолчанию 1540. Не путать с портом агента кластера (1541)', name: 'server1cPort')
         string(defaultValue: "${env.agent1cPort}", description: 'Порт агента кластера 1с. По умолчанию 1541', name: 'agent1cPort')
@@ -50,8 +58,8 @@ pipeline {
                         if (storages1cPathList.size() != 0) {
                             assert storages1cPathList.size() == templatebasesList.size()
                         }
-
-                        server1c = server1c.isEmpty() ? "localhost" : server1c
+                      
+            			server1c = server1c.isEmpty() ? "localhost" : server1c
                         serverSql = serverSql.isEmpty() ? "localhost" : serverSql
                         server1cPort = server1cPort.isEmpty() ? "1540" : server1cPort
                         agent1cPort = agent1cPort.isEmpty() ? "1541" : agent1cPort
@@ -75,9 +83,23 @@ pipeline {
                             templateDb = templatebasesList[i]
                             storage1cPath = storages1cPathList[i]
                             testbase = "test_${templateDb}"
-                            testbaseConnString = projectHelpers.getConnString(server1c, testbase, agent1cPort)
-                            backupPath = "${env.WORKSPACE}/build/temp_${templateDb}_${utils.currentDateStamp()}"
+                            
 
+                        	if (fileBase) {
+                    		testbaseConnString = projectHelpers.getFileConnString(fileBasesCatalog, testbase)
+                        	deleteDbCatalog["deleteDbCatalog_${testbase}"] = deleteDbCatalog(
+                        		fileBasesCatalog,
+                        		testbase)
+
+                        	sourceBasePath = fileBasesCatalog + templateDb
+                        	testbasePath = fileBasesCatalog + testbase
+                    		createFileDbTask["createFileDbTask_${testbase}"] = createFileDbTask(
+                    			sourceBasePath,
+                    			testbasePath )
+                        	} 
+                        	else {
+                        	testbaseConnString = projectHelpers.getConnString(server1c, testbase, agent1cPort)
+                            backupPath = "${env.WORKSPACE}/build/temp_${templateDb}_${utils.currentDateStamp()}"	
                             // 1. Удаляем тестовую базу из кластера (если он там была) и очищаем клиентский кеш 1с
                             dropDbTasks["dropDbTask_${testbase}"] = dropDbTask(
                                 server1c, 
@@ -129,7 +151,9 @@ pipeline {
                                 admin1cUser, 
                                 admin1cPwd,
                                 testbaseConnString
-                            )
+                            )						
+                            }
+
                         }
 
                         parallel dropDbTasks
@@ -274,4 +298,30 @@ def updateDbTask(platform1c, infobase, storage1cPath, storageUser, storagePwd, c
             }
         }
     }
+}
+
+def deleteDbCatalog(catalogPath, infobase) {
+
+	return {
+		stage("Удаление каталога файловой базы ${infobase}"){
+			timestamps{
+				Path path = Paths.get(catalogPath)
+				if (Files.exists(path)) {
+					Files.delete(path)
+				}
+
+
+			}
+		}
+	}
+}
+
+def createFileDbTask(infobasePath, createPath) {
+	return {
+		stage("Создание копии файловой базы"){
+			timestamps{
+				Files.copy(infobase, createPath)
+			}
+		}
+	}
 }
