@@ -86,16 +86,18 @@ pipeline {
                             
 
                         	if (fileBase) {
+                    		sourceBasePath = fileBasesCatalog + templateDb
+                        	testbasePath = fileBasesCatalog + testbase
+
                     		testbaseConnString = projectHelpers.getFileConnString(fileBasesCatalog, testbase)
                         	deleteDbCatalog["deleteDbCatalog_${testbase}"] = deleteDbCatalog(
-                        		fileBasesCatalog,
-                        		testbase)
-
-                        	sourceBasePath = fileBasesCatalog + templateDb
-                        	testbasePath = fileBasesCatalog + testbase
+                        		testbasePath,
+                        		templateDb
+                    		)
                     		createFileDbTask["createFileDbTask_${testbase}"] = createFileDbTask(
                     			sourceBasePath,
-                    			testbasePath )
+                    			testbasePath
+                			)
                         	} 
                         	else {
                         	testbaseConnString = projectHelpers.getConnString(server1c, testbase, agent1cPort)
