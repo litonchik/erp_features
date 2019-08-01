@@ -310,6 +310,7 @@ def deleteDbCatalogTask(catalogPath, infobase) {
 			timestamps{
 				Path path = Paths.get(catalogPath)
 				if (Files.exists(path)) {
+					fileOperations([folderDeleteOperation(folderPath:'path')])
 					Files.delete(path)
 				}
 
@@ -324,9 +325,10 @@ def createFileDbTask(infobasePath, createPath) {
 		stage("Создание копии файловой базы"){
 			timestamps{
 				if (Files.notExists(createPath)) {
-					Files.createDirectory(createPath)
+					 fileOperations([folderCreateOperation(folderPath:'createPath')])
 				}
-				Files.copy(infobase, createPath)
+				fileOperations([folderCopyOperation(sourceFolderPath:'infobasePath', destinationFolderPath:'createPath')])
+				// Files.copy(infobase, createPath)
 			}
 		}
 	}
