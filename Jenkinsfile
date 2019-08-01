@@ -308,11 +308,11 @@ def deleteDbCatalogTask(catalogPath, infobase) {
 	return {
 		stage("Удаление каталога файловой базы ${infobase}"){
 			timestamps{
-				Path path = Paths.get(catalogPath)
-				if (Files.exists(path)) {
+				// Path path = Paths.get(catalogPath)
+				// if (Files.exists(path)) {
 					fileOperations([folderDeleteOperation(folderPath:'path')])
-					Files.delete(path)
-				}
+					// Files.delete(path)
+				// }
 
 
 			}
@@ -324,9 +324,9 @@ def createFileDbTask(infobasePath, createPath) {
 	return {
 		stage("Создание копии файловой базы"){
 			timestamps{
-				if (Files.notExists(createPath)) {
-					 fileOperations([folderCreateOperation(folderPath:'createPath')])
-				}
+				// if (Files.notExists(createPath)) {
+				fileOperations([folderCreateOperation(folderPath:'createPath')])
+				// }
 				fileOperations([folderCopyOperation(sourceFolderPath:'infobasePath', destinationFolderPath:'createPath')])
 				// Files.copy(infobase, createPath)
 			}
